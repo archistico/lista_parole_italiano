@@ -22,7 +22,7 @@ function my_split($string, $split_length = 1)
     }
 }
 
-$handle = fopen("testi/test.txt", "r");
+$handle = fopen("testi/testo (24).txt", "r");
 if ($handle) {
     while (($line = fgets($handle)) !== false) {
         $linea_pulita = strtolower(preg_replace("/\r|\n/", "", $line));
@@ -52,23 +52,32 @@ if ($handle) {
     fclose($handle);
 }
 
-echo "Parole: " . count($ris) ."\n";
+echo "Parole in totale: " . count($ris) ."\n";
 
 // Verifico che su parole.db ci sia la parola
 // se c'è incremento di uno la quantita
 
+$parole_differenti = array_unique($ris);
+sort($parole_differenti);
+echo "Parole differenti: " . count($parole_differenti) ."\n";
+
 $dbh = new \PDO('sqlite:parole.db');
-foreach ($ris as $p) {
+$conteggio = 0;
+foreach ($parole_differenti as $p) {
     try {
-        $stmt = $dbh->prepare('SELECT count(*) from parole WHERE parola = :parola');
-        $stmt->bindParam(':parola', $p, SQLITE3_TEXT);
+        $conteggio++;
+        // $stmt = $dbh->prepare('SELECT count(*) from parole WHERE parola = :parola');
+        // $stmt->bindParam(':parola', $p, SQLITE3_TEXT);
+
+        $stmt = $dbh->prepare("SELECT count(*) from parole WHERE parola = '{$p}'");
         $stmt->execute();
 
         $count = $stmt->fetchColumn();
         if($count > 0) {
-            echo "Parola presente: {$p}\n";
+            // echo "Parola presente: {$p}\n";
         } else {
-            echo "Attenzione non presente: {$p}\n";
+            //echo "[{$conteggio}] Non presente: {$p}\n";
+            echo "{$p}\n";
         }
     } catch (PDOException $e) {
         print "Error!: " . $e->getMessage() . "<br/>";
