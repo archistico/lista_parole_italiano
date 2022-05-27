@@ -23,17 +23,17 @@ function my_split($string, $split_length = 1)
 }
 
 if(count($argv)==2) {
-    $file = "testo ({$argv[1]})";
+    $file = "{$argv[1]}";
 } else {
-    $file = "testo (0)";
+    $file = "articoli 1.txt";
 }
 
-$handle = fopen("testi/{$file}.txt", "r");
+$handle = fopen("testi/{$file}", "r");
 if ($handle) {
     while (($line = fgets($handle)) !== false) {
         $linea_pulita = strtolower(preg_replace("/\r|\n/", "", $line));
         $linea_pulita = str_replace("È", "è", $linea_pulita);
-        $linea_pulita = trim(str_replace(['’', "'", '.', ',', ':', ';', '?', '!', '”', '“', '«', '»', '"', '…', '–', '‘'], " ", $linea_pulita));
+        $linea_pulita = trim(str_replace(['’', "'", '.', ',', ':', ';', '?', '!', '”', '“', '«', '»', '"', '…', '–', '‘', '(', ')', '*'], " ", $linea_pulita));
         $arr = explode(" ", $linea_pulita);
 
         foreach($arr as $a) {
@@ -69,7 +69,7 @@ echo "Parole differenti: " . count($parole_differenti) ."\n";
 $parole_conteggio = array_count_values($ris);
 arsort($parole_conteggio);
 
-$file_risultato = fopen("risultato_parole_{$file}.txt", "w") or die("Unable to open file nuove_parole!");
+$file_risultato = fopen("risultato_parole_{$file}.txt", "w") or die("Unable to open file risultato_parole!");
 foreach ($parole_conteggio as $p => $v) {
     fwrite($file_risultato, "{$p}, {$v}\n");
 }
