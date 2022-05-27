@@ -22,7 +22,8 @@ function my_split($string, $split_length = 1)
     }
 }
 
-$handle = fopen("testi/testo (24).txt", "r");
+$file = "testo (2)";
+$handle = fopen("testi/{$file}.txt", "r");
 if ($handle) {
     while (($line = fgets($handle)) !== false) {
         $linea_pulita = strtolower(preg_replace("/\r|\n/", "", $line));
@@ -54,29 +55,37 @@ if ($handle) {
 
 echo "Parole in totale: " . count($ris) ."\n";
 
-// Verifico che su parole.db ci sia la parola
-// se c'è incremento di uno la quantita
-
+sort($ris);
 $parole_differenti = array_unique($ris);
 sort($parole_differenti);
 echo "Parole differenti: " . count($parole_differenti) ."\n";
 
+// creo array con parola, conteggio
+$parole_conteggio = array_count_values($ris);
+arsort($parole_conteggio);
+
+$file_risultato = fopen("risultato_parole_{$file}.txt", "w") or die("Unable to open file nuove_parole!");
+foreach ($parole_conteggio as $p => $v) {
+    fwrite($file_risultato, "{$p}, {$v}\n");
+}
+fclose($file_risultato);
+
 $dbh = new \PDO('sqlite:parole.db');
+
+$file_nuove_parole = fopen("nuove_parole_{$file}.txt", "w") or die("Unable to open file nuove_parole!");
+
 $conteggio = 0;
 foreach ($parole_differenti as $p) {
     try {
         $conteggio++;
-        // $stmt = $dbh->prepare('SELECT count(*) from parole WHERE parola = :parola');
-        // $stmt->bindParam(':parola', $p, SQLITE3_TEXT);
 
         $stmt = $dbh->prepare("SELECT count(*) from parole WHERE parola = '{$p}'");
         $stmt->execute();
 
         $count = $stmt->fetchColumn();
-        if($count > 0) {
-            // echo "Parola presente: {$p}\n";
-        } else {
+        if($count == 0) {
             //echo "[{$conteggio}] Non presente: {$p}\n";
+            fwrite($file_nuove_parole, "{$p}\n");
             echo "{$p}\n";
         }
     } catch (PDOException $e) {
@@ -85,3 +94,4 @@ foreach ($parole_differenti as $p) {
     }
 }
 $dbh = null;
+fclose($file_nuove_parole);
