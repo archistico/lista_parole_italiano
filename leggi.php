@@ -22,7 +22,12 @@ function my_split($string, $split_length = 1)
     }
 }
 
-$file = "testo (2)";
+if(count($argv)==2) {
+    $file = "testo ({$argv[1]})";
+} else {
+    $file = "testo (0)";
+}
+
 $handle = fopen("testi/{$file}.txt", "r");
 if ($handle) {
     while (($line = fgets($handle)) !== false) {
